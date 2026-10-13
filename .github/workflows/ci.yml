@@ -16,7 +16,7 @@ jobs:
         with:
           go-version-file: "go.mod"
           cache: true
-      - uses: golangci/golanci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v6
         with:
           version: 1.64.6
 
