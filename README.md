@@ -1,5 +1,7 @@
 # interline-engine
 
+[![CI](https://github.com/hellprise/interline-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/hellprise/interline-engine/actions/workflows/ci.yml)
+
 Go search and booking engine for the Interline flight aggregator.
 
 ## Getting Started
