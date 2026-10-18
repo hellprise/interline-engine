@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -46,7 +45,7 @@ var defaultAirports = []Airport{
 	{IATA: "CPH", Name: "Copenhagen Airport", Country: "DK"},
 }
 
-// for every pair of hub x spoke (3x11=33) we created 2 waves: morning wave and afternoon wave
+// Number of repetitions per (hub, spoke) pair per day; each repetition generates both a morning and an afternoon wave (33 * 2 * 2 = 132 flights/day).
 const defaultWaves = 2
 
 type Config struct {
@@ -79,14 +78,7 @@ var (
 )
 
 func (f Flight) Key() string {
-	b := strings.Builder{}
-	b.WriteString(f.Airline)
-	b.WriteString("-")
-	b.WriteString(strconv.Itoa(f.Number))
-	b.WriteString("-")
-	b.WriteString(f.DepTime.UTC().Format(time.DateOnly))
-
-	return b.String()
+	return f.Airline + "-" + strconv.Itoa(f.Number) + "-" + f.DepTime.UTC().Format(time.DateOnly)
 }
 
 type Data struct {
@@ -199,7 +191,10 @@ func validateConfig(cfg Config) error {
 
 func sortFlights(flights []Flight) {
 	slices.SortFunc(flights, func(a, b Flight) int {
-		return cmp.Or(a.DepTime.Compare(b.DepTime), cmp.Compare(a.Key(), b.Key()))
+		if c := a.DepTime.Compare(b.DepTime); c != 0 {
+			return c
+		}
+		return cmp.Compare(a.Key(), b.Key())
 	})
 }
 
