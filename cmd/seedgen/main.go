@@ -22,8 +22,15 @@ func run() error {
 	startStr := flag.String("start", "", "first service day in YYYY-MM-DD (UTC)")
 	days := flag.Int("days", 30, "number of days to generate")
 	outDir := flag.String("out", "", "output directory for CSV files")
+
 	flag.Parse()
 
+	if flag.NArg() > 0 {
+		return fmt.Errorf("unexpected arguments: %v", flag.Args())
+	}
+	if *startStr == "" {
+		return errors.New("missing -start date")
+	}
 	if *outDir == "" {
 		return errors.New("missing -out directory")
 	}

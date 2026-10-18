@@ -10,11 +10,19 @@ import (
 )
 
 func TestFlightKeyLateDeparture(t *testing.T) {
+	origLocal := time.Local
+	time.Local = time.FixedZone("UTC+3", 3*60*60)
+	defer func() {
+		time.Local = origLocal
+	}()
+
+	zonePlusTwo := time.FixedZone("UTC+2", 2*60*60)
+
 	f := Flight{
 		Airline: "Q7",
 		Number:  123,
-		DepTime: time.Date(2026, 11, 2, 23, 55, 0, 0, time.UTC),
-		ArrTime: time.Date(2026, 11, 3, 1, 30, 0, 0, time.UTC),
+		DepTime: time.Date(2026, 11, 3, 1, 55, 0, 0, zonePlusTwo),
+		ArrTime: time.Date(2026, 11, 3, 3, 30, 0, 0, zonePlusTwo),
 	}
 
 	got := f.Key()
@@ -47,8 +55,8 @@ func TestWriteCSVAirportComma(t *testing.T) {
 		t.Fatalf("read csv: %v", err)
 	}
 
-	if len(rows[1]) < 3 {
-		t.Fatalf("got %d rows, want at least 3", len(rows))
+	if len(rows) < 2 || len(rows[1]) < 3 {
+		t.Fatalf("unexpected csv shape: got %d rows", len(rows))
 	}
 
 	if got, want := rows[1][1], "Lisbon, Humberto Delgado"; got != want {
@@ -72,16 +80,18 @@ func TestSortFlightsSameDepTime(t *testing.T) {
 }
 
 func TestGenerateSingleDay(t *testing.T) {
-	cfg, err := Generate(Config{Start: testStart, Seed: 42, Days: 1})
+	data, err := Generate(Config{Start: testStart, Seed: 42, Days: 1})
 	if err != nil {
-		t.Errorf("generate config failed: %s", err)
+		t.Fatalf("Generate config failed: %s", err)
+	}
+	if len(data.Flights) == 0 {
+		t.Fatal("Generate returned 0 flights, want > 0")
 	}
 
-	for _, f := range cfg.Flights {
-		end := testStart.AddDate(0, 0, 1)
-
+	end := testStart.AddDate(0, 0, 1)
+	for _, f := range data.Flights {
 		if f.DepTime.Before(testStart) || !f.DepTime.Before(end) {
-			t.Errorf("wrong flight departure time: %s", f.DepTime)
+			t.Errorf("flight DepTime = %v, want within [%v, %v)", f.DepTime, testStart, end)
 		}
 	}
 }
