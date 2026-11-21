@@ -8,10 +8,16 @@ Go search and booking engine for the Interline flight aggregator.
 
 ### Local database
 
+Install `goose` CLI (once):
+
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@v3.28.0
+```
+
 From scratch:
 
 ```bash
-cp .env.example .env # set a password in .env
+cp .env.example .env # set GOOSE_DB_PASSWORD in .env
 docker compose up -d --wait
 goose up
 ```
