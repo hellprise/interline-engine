@@ -6,7 +6,18 @@ Go search and booking engine for the Interline flight aggregator.
 
 ## Getting Started
 
+### Local database
+
+From scratch:
+
+```bash
+cp .env.example .env # set a password in .env
+docker compose up -d --wait
+goose up
+```
+
 ### Build
+
 ```bash
 go build ./...
 ```
@@ -14,6 +25,7 @@ go build ./...
 ### Test
 
 Run unit tests with race detection enabled:
+
 ```bash
 go test -race ./...
 ```
